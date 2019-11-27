@@ -471,6 +471,12 @@
     <string name="btn_unsave">Unsave</string>
     <string name="btn_collapse">Collapse</string>
 
+    <!-- Award Icon Content labels for TalkBack accessibility -->
+
+    <string name="awd_silvered">Silvered</string>
+    <string name="awd_gilded">Gilded</string>
+    <string name="awd_platinized">Platinized</string>
+
     <!-- Backup -->
     <string name="backup_success">Backup successful!</string>
     <string name="backup_restoring">Restoring your settings</string>
