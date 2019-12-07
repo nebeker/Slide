@@ -423,12 +423,15 @@ public class RedditItemView extends RelativeLayout {
                     R.styleable.FontStyle);
             int fontsize =
                     (int) (a.getDimensionPixelSize(R.styleable.FontStyle_font_cardtitle, -1) * .75);
+            String gildContentDescription = holder.gild.toString();
             a.recycle();
             holder.gild.setVisibility(View.VISIBLE);
             // Add silver, gold, platinum icons and counts in that order
             if (comment.getTimesSilvered() > 0) {
                 final String timesSilvered = (comment.getTimesSilvered() == 1) ? ""
                         : "\u200Ax" + Integer.toString(comment.getTimesSilvered());
+                gildContentDescription =
+                        gildContentDescription + getResources().getString(R.string.awd_silvered) + "\u00A0" + timesSilvered + "\u00A0";
                 SpannableStringBuilder silvered =
                         new SpannableStringBuilder("\u00A0★" + timesSilvered + "\u00A0");
                 Bitmap image = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.silver);
@@ -444,6 +447,8 @@ public class RedditItemView extends RelativeLayout {
             if (comment.getTimesGilded() > 0) {
                 final String timesGilded = (comment.getTimesGilded() == 1) ? ""
                         : "\u200Ax" + Integer.toString(comment.getTimesGilded());
+                gildContentDescription =
+                        gildContentDescription + getResources().getString(R.string.awd_gilded) + "\u00A0" + timesGilded + "\u00A0";
                 SpannableStringBuilder gilded =
                         new SpannableStringBuilder("\u00A0★" + timesGilded + "\u00A0");
                 Bitmap image = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.gold);
@@ -459,6 +464,8 @@ public class RedditItemView extends RelativeLayout {
             if (comment.getTimesPlatinized() > 0) {
                 final String timesPlatinized = (comment.getTimesPlatinized() == 1) ? ""
                         : "\u200Ax" + Integer.toString(comment.getTimesPlatinized());
+                gildContentDescription =
+                        gildContentDescription + getResources().getString(R.string.awd_platinized) + "\u00A0" + timesPlatinized + "\u00A0";
                 SpannableStringBuilder platinized =
                         new SpannableStringBuilder("\u00A0★" + timesPlatinized + "\u00A0");
                 Bitmap image = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.platinum);
@@ -469,8 +476,8 @@ public class RedditItemView extends RelativeLayout {
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 platinized.setSpan(new RelativeSizeSpan(0.75f), 3, platinized.length(),
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                ((TextView) holder.gild).append(platinized);
             }
+            holder.gild.setContentDescription(gildContentDescription);
         } else if (holder.gild.getVisibility() == View.VISIBLE) {
             holder.gild.setVisibility(View.GONE);
         }

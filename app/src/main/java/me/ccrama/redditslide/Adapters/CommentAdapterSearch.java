@@ -97,6 +97,8 @@ public class CommentAdapterSearch extends RecyclerView.Adapter<RecyclerView.View
                 " " + mContext.getString(R.string.submission_properties_seperator_comments) + " ";
         SpannableStringBuilder titleString = new SpannableStringBuilder();
 
+        String titleStringContentDescription = new String();
+
         SpannableStringBuilder author = new SpannableStringBuilder(comment.getAuthor());
         final int authorcolor = Palette.getFontColorUser(comment.getAuthor());
 
@@ -139,8 +141,10 @@ public class CommentAdapterSearch extends RecyclerView.Adapter<RecyclerView.View
         }
 
         titleString.append(author);
+        titleStringContentDescription = titleStringContentDescription + author.toString();
 
         titleString.append(spacer);
+        titleStringContentDescription = titleStringContentDescription + spacer.toString();
 
         String scoreText;
         if (comment.isScoreHidden()) {
@@ -152,20 +156,32 @@ public class CommentAdapterSearch extends RecyclerView.Adapter<RecyclerView.View
 
 
         titleString.append(score);
+        titleStringContentDescription = titleStringContentDescription + " " + score.toString();
         if (!scoreText.contains("[")) {
             titleString.append(mContext.getResources()
                     .getQuantityString(R.plurals.points, comment.getScore()));
+            titleStringContentDescription = titleStringContentDescription + "pt";
         }
         titleString.append((comment.isControversial() ? " †" : ""));
+        titleStringContentDescription =
+                titleStringContentDescription + " " + mContext.getString(R.string.sorting_controversial);
 
         titleString.append(spacer);
         String timeAgo = TimeUtils.getTimeAgo(comment.getCreated().getTime(), mContext);
         titleString.append((timeAgo == null || timeAgo.isEmpty()) ? "just now"
                 : timeAgo); //some users were crashing here
+        titleStringContentDescription =
+                titleStringContentDescription + " " + ((timeAgo == null || timeAgo.isEmpty()) ? "just now"
+                : timeAgo);
 
         titleString.append(((comment.getEditDate() != null) ? " (edit " + TimeUtils.getTimeAgo(
                 comment.getEditDate().getTime(), mContext) + ")" : ""));
+        titleStringContentDescription =
+                titleStringContentDescription + " " + ((comment.getEditDate() != null) ? " (edit " + TimeUtils.getTimeAgo(
+                        comment.getEditDate().getTime(), mContext) + ")" : "");
         titleString.append("  ");
+        titleStringContentDescription = titleStringContentDescription + " ";
+
 
         if (comment.getDataNode().get("stickied").asBoolean()) {
             SpannableStringBuilder pinned = new SpannableStringBuilder("\u00A0"
@@ -176,6 +192,7 @@ public class CommentAdapterSearch extends RecyclerView.Adapter<RecyclerView.View
                     0, pinned.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             titleString.append(pinned);
             titleString.append(" ");
+            titleStringContentDescription = titleStringContentDescription + " " + pinned;
         }
         if (UserTags.isUserTagged(comment.getAuthor())) {
             SpannableStringBuilder pinned = new SpannableStringBuilder(
@@ -185,6 +202,7 @@ public class CommentAdapterSearch extends RecyclerView.Adapter<RecyclerView.View
                     0, pinned.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             titleString.append(pinned);
             titleString.append(" ");
+            titleStringContentDescription = titleStringContentDescription + " " + pinned;
         }
         if (comment.getTimesSilvered() > 0 || comment.getTimesGilded() > 0  || comment.getTimesPlatinized() > 0) {
             TypedArray a = mContext.obtainStyledAttributes(
@@ -197,6 +215,8 @@ public class CommentAdapterSearch extends RecyclerView.Adapter<RecyclerView.View
             if (comment.getTimesSilvered() > 0) {
                 final String timesSilvered = (comment.getTimesSilvered() == 1) ? ""
                         : "\u200Ax" + Integer.toString(comment.getTimesSilvered());
+                titleStringContentDescription =
+                        titleStringContentDescription + " " + mContext.getResources().getString(R.string.awd_silvered) + "\u00A0" + timesSilvered + "\u00A0";
                 SpannableStringBuilder silvered =
                         new SpannableStringBuilder("\u00A0★" + timesSilvered + "\u00A0");
                 Bitmap image = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.silver);
@@ -213,6 +233,8 @@ public class CommentAdapterSearch extends RecyclerView.Adapter<RecyclerView.View
             if (comment.getTimesGilded() > 0) {
                 final String timesGilded = (comment.getTimesGilded() == 1) ? ""
                         : "\u200Ax" + Integer.toString(comment.getTimesGilded());
+                titleStringContentDescription =
+                        titleStringContentDescription + " " + mContext.getResources().getString(R.string.awd_gilded) + "\u00A0" + timesGilded + "\u00A0";
                 SpannableStringBuilder gilded =
                         new SpannableStringBuilder("\u00A0★" + timesGilded + "\u00A0");
                 Bitmap image = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.gold);
@@ -229,6 +251,8 @@ public class CommentAdapterSearch extends RecyclerView.Adapter<RecyclerView.View
             if (comment.getTimesPlatinized() > 0) {
                 final String timesPlatinized = (comment.getTimesPlatinized() == 1) ? ""
                         : "\u200Ax" + Integer.toString(comment.getTimesPlatinized());
+                titleStringContentDescription =
+                        titleStringContentDescription + " " + mContext.getResources().getString(R.string.awd_platinized) + "\u00A0" + timesPlatinized + "\u00A0";
                 SpannableStringBuilder platinized =
                         new SpannableStringBuilder("\u00A0★" + timesPlatinized + "\u00A0");
                 Bitmap image = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.platinum);
@@ -251,6 +275,7 @@ public class CommentAdapterSearch extends RecyclerView.Adapter<RecyclerView.View
                             false), 0, pinned.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             titleString.append(pinned);
             titleString.append(" ");
+            titleStringContentDescription = titleStringContentDescription + " " + pinned;
         }
         if (comment.getAuthorFlair() != null && comment.getAuthorFlair().getText() != null
                 && !comment.getAuthorFlair().getText().isEmpty()) {
@@ -265,8 +290,11 @@ public class CommentAdapterSearch extends RecyclerView.Adapter<RecyclerView.View
                             false, mContext), 0, pinned.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             titleString.append(pinned);
             titleString.append(" ");
+            titleStringContentDescription = titleStringContentDescription + " " + pinned;
         }
         holder.content.setText(titleString);
+        holder.content.setContentDescription(titleStringContentDescription);
+
     }
 
     @Override
