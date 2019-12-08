@@ -409,6 +409,8 @@ public class SubmissionCache {
         SpannableStringBuilder titleString = new SpannableStringBuilder();
         titleString.append(Html.fromHtml(submission.getTitle()));
 
+        String titleStringContentDescription = new String(titleString.toString());
+
         if (submission.isStickied()) {
             SpannableStringBuilder pinned = new SpannableStringBuilder("\u00A0"
                     + mContext.getString(R.string.submission_stickied).toUpperCase()
@@ -418,6 +420,8 @@ public class SubmissionCache {
                     0, pinned.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             titleString.append(" ");
             titleString.append(pinned);
+            titleStringContentDescription = titleStringContentDescription + " " + pinned.toString();
+
         }
         if (submission.getTimesSilvered() > 0 || submission.getTimesGilded() > 0
                 || submission.getTimesPlatinized() > 0) {
@@ -443,6 +447,8 @@ public class SubmissionCache {
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 titleString.append(" ");
                 titleString.append(silvered);
+                titleStringContentDescription =
+                        titleStringContentDescription + " " + mContext.getResources().getString(R.string.awd_silvered) + " " + timesSilvered;
             }
             if (submission.getTimesGilded() > 0) {
                 final String timesGilded = (submission.getTimesGilded() == 1) ? ""
@@ -459,6 +465,8 @@ public class SubmissionCache {
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 titleString.append(" ");
                 titleString.append(gilded);
+                titleStringContentDescription =
+                        titleStringContentDescription + " " + mContext.getResources().getString(R.string.awd_gilded) + " " + timesGilded;
             }
             if (submission.getTimesPlatinized() > 0) {
                 final String timesPlatinized = (submission.getTimesPlatinized() == 1) ? ""
@@ -475,6 +483,8 @@ public class SubmissionCache {
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 titleString.append(" ");
                 titleString.append(platinized);
+                titleStringContentDescription =
+                        titleStringContentDescription + " " + mContext.getResources().getString(R.string.awd_platinized) + " " + timesPlatinized;
             }
         }
         if (submission.isNsfw()) {
@@ -484,6 +494,7 @@ public class SubmissionCache {
                     pinned.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             titleString.append(" ");
             titleString.append(pinned);
+            titleStringContentDescription = titleStringContentDescription + " " + "NSFW";
         }
         if (submission.getDataNode().get("spoiler").asBoolean()) {
             SpannableStringBuilder pinned = new SpannableStringBuilder("\u00A0SPOILER\u00A0");
@@ -492,6 +503,7 @@ public class SubmissionCache {
                     0, pinned.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             titleString.append(" ");
             titleString.append(pinned);
+            titleStringContentDescription = titleStringContentDescription + " " + pinned;
         }
         if (submission.getDataNode().get("is_original_content").asBoolean()) {
             SpannableStringBuilder pinned = new SpannableStringBuilder("\u00A0OC\u00A0");
@@ -499,6 +511,7 @@ public class SubmissionCache {
                     0, pinned.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             titleString.append(" ");
             titleString.append(pinned);
+            titleStringContentDescription = titleStringContentDescription + " " + pinned;
         }
 
         if (submission.getSubmissionFlair().getText() != null && !submission.getSubmissionFlair()
@@ -527,10 +540,17 @@ public class SubmissionCache {
                     pinned.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             titleString.append(" ");
             titleString.append(pinned);
+            titleStringContentDescription = titleStringContentDescription + " " + pinned;
         }
 
+        //titleString.setContentDescription(titleStringContentDescription);
+        //return titleString;
 
-        return titleString;
+        //TODO: get this string out separately from the graphical titleString
+        SpannableStringBuilder titleStringDesc =
+                new SpannableStringBuilder(titleStringContentDescription);
+        return titleStringDesc;
+
 
     }
 
