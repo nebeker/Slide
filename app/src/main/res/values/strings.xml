@@ -45,9 +45,9 @@
     <string name="submission_comment_unsaved">Comment un-saved</string>
     <string name="submission_share_permalink">Share link</string>
     <string name="submission_comment_copied">Comment text copied</string>
+    <string name="submission_text_copied">Submission text copied</string>
     <string name="submission_nocontent">Submission has no content</string>
     <string name="submission_link_copied">Link copied</string>
-    <string name="submission_text_copied">Selftext copied</string>
     <string name="submission_removed">Submission removed</string>
 
 
@@ -130,6 +130,7 @@
 
 
     <!-- User profile -->
+    <string name="profile_karma_total">Total karma</string>
     <string name="profile_karma_link">Post karma</string>
     <string name="profile_karma_comment">Comment karma</string>
     <string name="profile_message">Private message</string>
@@ -315,6 +316,8 @@
     <string name="multi_submit_which_sub">Which sub would you like to submit to?</string>
     <string name="multi_saved_successfully">Saved successfully</string>
     <string name="delete_multireddit_title">Do you really want to delete /m/%1$s?</string>
+    <string name="multi_save_option">Would you like to save this multireddit?</string>
+
 
 
     <!-- Content types -->
@@ -328,6 +331,8 @@
     <string name="type_album">Album</string>
     <string name="type_xkcd">XKCD</string>
     <string name="type_nsfw_album">NSFW album</string>
+    <string name="type_nsfw_gallery">NSFW Gallery</string>
+    <string name="type_gallery">Gallery</string>
     <string name="type_img">Image</string>
     <string name="type_vid">Video</string>
     <string name="type_videos">Videos</string>
@@ -720,6 +725,7 @@
     <string name="settings_comment_collapse_default">Collapse child comments by default</string>
     <string name="settings_data_enable">Enable Data Saving settings</string>
     <string name="settings_data_video_quality">Prefer low-quality videos when Data Saving enabled</string>
+    <string name="settings_comments_collapse_deleted">Collapse deleted comments by default</string>
     <string name="settings_backup_occurs">Backup will occur at %1$s</string>
     <string name="settings_backup_none">No subreddits will back up</string>
     <string name="settings_backup_will_backup">\u0020will back up</string>
@@ -1156,6 +1162,7 @@
     <string name="mode_centered">Card with centered image</string>
     <string name="mode_card">Card</string>
     <string name="mode_thumbnail">Thumbnail</string>
+    <string name="mode_no_thumbnails">No Thumbnail</string>
     <string name="mode_big_thumbnails">Wide thumbnails</string>
     <string name="mode_cropped">Cropped big picture</string>
     <string name="mode_bigpic">Big picture</string>

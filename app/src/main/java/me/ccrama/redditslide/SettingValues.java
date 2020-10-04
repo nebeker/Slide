@@ -66,6 +66,7 @@ public class SettingValues {
     public static final String PREF_COMMENT_PAGER             = "commentPager";
     public static final String PREF_COLLAPSE_COMMENTS         = "collapseCOmments";
     public static final String PREF_COLLAPSE_COMMENTS_DEFAULT = "collapseCommentsDefault";
+    public static final String PREF_COLLAPSE_DELETED_COMMENTS = "collapseDeletedComments";
     public static final String PREF_RIGHT_HANDED_COMMENT_MENU = "rightHandedCommentMenu";
     public static final String PREF_DUAL_PORTRAIT             = "dualPortrait";
     public static final String PREF_SINGLE_COLUMN_MULTI       = "singleColumnMultiWindow";
@@ -73,6 +74,7 @@ public class SettingValues {
     public static final String PREF_COMMENT_FAB               = "commentFab";
     public static final String PREF_SWITCH_THUMB              = "switchThumb";
     public static final String PREF_BIG_THUMBS                = "bigThumbnails";
+    public static final String PREF_NO_THUMB                  = "noThumbnails";
     public static final String PREF_LOW_RES_ALWAYS            = "lowResAlways";
     public static final String PREF_LOW_RES_MOBILE            = "lowRes";
     public static final String PREF_IMAGE_LQ                  = "imageLq";
@@ -190,6 +192,7 @@ public class SettingValues {
     public static boolean readerMode;
     public static boolean collapseComments;
     public static boolean collapseCommentsDefault;
+    public static boolean collapseDeletedComments;
     public static boolean rightHandedCommentMenu;
     public static boolean abbreviateScores;
     public static boolean shareLongLink;
@@ -233,6 +236,7 @@ public class SettingValues {
     public static boolean albumSwipe;
     public static boolean switchThumb;
     public static boolean bigThumbnails;
+    public static boolean noThumbnails;
     public static boolean commentPager;
     public static boolean alphabetizeOnSubscribe;
     public static boolean colorSubName;
@@ -325,7 +329,7 @@ public class SettingValues {
 
         // TODO: Remove the old pref check in a later version
         // This handles forward migration from the old night_mode boolean state
-        nightModeState = prefs.getInt(PREF_NIGHT_MODE_STATE, prefs.getBoolean(PREF_NIGHT_MODE, false) ? NightModeState.MANUAL.ordinal() : NightModeState.DISABLED.ordinal());
+        nightModeState = prefs.getInt(PREF_NIGHT_MODE_STATE, (prefs.getBoolean(PREF_NIGHT_MODE, false) ? NightModeState.MANUAL : NightModeState.DISABLED).ordinal());
         nightTheme = prefs.getInt(PREF_NIGHT_THEME, 0);
         autoTime = prefs.getBoolean(PREF_AUTOTHEME, false);
         colorBack = prefs.getBoolean(PREF_COLOR_BACK, false);
@@ -337,6 +341,7 @@ public class SettingValues {
         alwaysZoom = prefs.getBoolean(PREF_ZOOM_DEFAULT, true);
         collapseComments = prefs.getBoolean(PREF_COLLAPSE_COMMENTS, false);
         collapseCommentsDefault = prefs.getBoolean(PREF_COLLAPSE_COMMENTS_DEFAULT, false);
+        collapseDeletedComments = prefs.getBoolean(PREF_COLLAPSE_DELETED_COMMENTS, false);
         rightHandedCommentMenu = prefs.getBoolean(PREF_RIGHT_HANDED_COMMENT_MENU, false);
         commentAutoHide = prefs.getBoolean(PREF_AUTOHIDE_COMMENTS, false);
         showCollapseExpand = prefs.getBoolean(PREF_SHOW_COLLAPSE_EXPAND, false);
@@ -406,6 +411,7 @@ public class SettingValues {
         cropImage = prefs.getBoolean(PREF_CROP_IMAGE, true);
         switchThumb = prefs.getBoolean(PREF_SWITCH_THUMB, true);
         bigThumbnails = prefs.getBoolean(PREF_BIG_THUMBS, false);
+        noThumbnails = prefs.getBoolean(PREF_NO_THUMB, false);
 
         swipeAnywhere = true; //override this always now
         album = prefs.getBoolean(PREF_ALBUM, true);
@@ -539,8 +545,7 @@ public class SettingValues {
             }
 
             // unset forced state if forcing is now unnecessary - allows for normal night mode on/off transitions
-            if ((night && forcedNightModeState == ForcedState.FORCED_ON)
-                    || (!night && forcedNightModeState == ForcedState.FORCED_OFF)) {
+            if (forcedNightModeState == (night ? ForcedState.FORCED_ON : ForcedState.FORCED_OFF)) {
                 forcedNightModeState = ForcedState.NOT_FORCED;
             }
 

@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -290,7 +291,7 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             lastSeen = HasSeen.getSeenTime(submission);
             String fullname = submission.getFullName();
             if (fullname.contains("t3_")) {
-                fullname = fullname.substring(3, fullname.length());
+                fullname = fullname.substring(3);
             }
             HasSeen.seenTimes.put(fullname, System.currentTimeMillis());
             KVStore.getInstance().insert(fullname, String.valueOf(System.currentTimeMillis()));
@@ -412,7 +413,7 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             comment.getSubredditName().toLowerCase(Locale.ENGLISH)
                                     + ":"
                                     + s.toLowerCase(Locale.ENGLISH),
-                            ImageFlairs.getFlairImageLoader(mContext).getInstance().getDiskCache());
+                            ImageFlairs.FlairImageLoader.getInstance().getDiskCache());
                     if (file != null && file.exists()) {
                         set = true;
                         holder.imageFlair.setVisibility(View.VISIBLE);
@@ -539,6 +540,13 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             if (currentlyEditingId.equals(comment.getFullName())) {
                 setCommentStateUnhighlighted(holder, baseNode, false);
                 setCommentStateHighlighted(holder, comment, baseNode, true, false);
+            }
+
+            if (SettingValues.collapseDeletedComments) {
+                if (comment.getBody().startsWith("[removed]") || comment.getBody().startsWith("[deleted]")) {
+                    holder.firstTextView.setVisibility(View.GONE);
+                    holder.commentOverflow.setVisibility(View.GONE);
+                }
             }
 
         } else if (firstHolder instanceof SubmissionViewHolder && submission != null) {
@@ -1118,9 +1126,9 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             currentNode = baseNode;
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
             resetMenu(holder.menuArea, false);
-            final View baseView = (SettingValues.rightHandedCommentMenu) ? inflater.inflate(
-                    R.layout.comment_menu_right_handed, holder.menuArea)
-                    : inflater.inflate(R.layout.comment_menu, holder.menuArea);
+            final View baseView = inflater.inflate(
+                    SettingValues.rightHandedCommentMenu ?
+                            R.layout.comment_menu_right_handed : R.layout.comment_menu, holder.menuArea);
 
             if (!isReplying) {
                 baseView.setVisibility(View.GONE);
@@ -1396,7 +1404,7 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                     Color.WHITE);
                             ((ImageView) replyArea.findViewById(R.id.spoiler)).setColorFilter(Color.WHITE);
                             replyLine.getBackground()
-                                    .setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+                                    .setColorFilter(new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN));
                         }
 
                         replyArea.setVisibility(View.VISIBLE);

@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -220,21 +221,21 @@ public class MediaView extends FullScreenActivity
         TypedArray ta = obtainStyledAttributes(attrs);
 
         int color = ta.getColor(0, Color.WHITE);
-        Drawable external = getResources().getDrawable(R.drawable.openexternal);
+        Drawable external = getResources().getDrawable(R.drawable.open_external);
         Drawable share = getResources().getDrawable(R.drawable.share);
         Drawable image = getResources().getDrawable(R.drawable.image);
         Drawable save = getResources().getDrawable(R.drawable.save);
         Drawable collection = getResources().getDrawable(R.drawable.collection);
-        Drawable file = getResources().getDrawable(R.drawable.savecontent);
+        Drawable file = getResources().getDrawable(R.drawable.save_content);
         Drawable thread = getResources().getDrawable(R.drawable.commentchange);
 
-        external.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        share.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        save.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        collection.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        file.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        thread.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        external.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        share.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        image.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        save.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        collection.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        file.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        thread.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
 
         ta.recycle();
 
@@ -252,13 +253,14 @@ public class MediaView extends FullScreenActivity
                 && !contentUrl.contains(".mp4")
                 && !contentUrl.contains("streamable.com")
                 && !contentUrl.contains("gfycat.com")
+                && !contentUrl.contains("redgifs.com")
                 && !contentUrl.contains("v.redd.it")) {
             String type = contentUrl.substring(contentUrl.lastIndexOf(".") + 1).toUpperCase();
             try {
                 if (type.equals("GIFV") && new URL(contentUrl).getHost().equals("i.imgur.com")) {
                     type = "GIF";
                     contentUrl = contentUrl.replace(".gifv", ".gif");
-                    //todo possibly share gifs  b.sheet(9, share, "Share GIF");
+                    //todo possibly share gifs  b.sheet(9, ic_share, "Share GIF");
                 }
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -360,7 +362,7 @@ public class MediaView extends FullScreenActivity
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     mBuilder = new NotificationCompat.Builder(MediaView.this, Reddit.CHANNEL_IMG);
                     mBuilder.setContentTitle(getString(R.string.mediaview_saving, baseUrl))
-                            .setSmallIcon(R.drawable.download_png);
+                            .setSmallIcon(R.drawable.save);
                     try {
 
                         final URL url =
@@ -408,7 +410,7 @@ public class MediaView extends FullScreenActivity
                                         Notification notif = new NotificationCompat.Builder(
                                                 MediaView.this, Reddit.CHANNEL_IMG)
                                                 .setContentTitle(getString(R.string.gif_saved))
-                                                .setSmallIcon(R.drawable.save_png)
+                                                .setSmallIcon(R.drawable.save_content)
                                                 .setContentIntent(contentIntent)
                                                 .build();
 
@@ -678,8 +680,8 @@ public class MediaView extends FullScreenActivity
                         || (!NetworkUtil.isConnectedWifi(this) && SettingValues.lowResMobile))) {
             String url = contentUrl;
             url = url.substring(0, url.lastIndexOf(".")) + (SettingValues.lqLow ? "m"
-                    : (SettingValues.lqMid ? "l" : "h")) + url.substring(url.lastIndexOf("."),
-                    url.length());
+                    : (SettingValues.lqMid ? "l" : "h")) + url.substring(url.lastIndexOf(".")
+            );
 
             displayImage(url);
             findViewById(R.id.hq).setOnClickListener(new View.OnClickListener() {
@@ -729,10 +731,8 @@ public class MediaView extends FullScreenActivity
         hideOnLongClick();
     }
 
-    private ContentType.Type contentType = ContentType.Type.IMAGE;
-
     public void doLoad(final String contentUrl) {
-        contentType = ContentType.getContentType(contentUrl);
+        ContentType.Type contentType = ContentType.getContentType(contentUrl);
         switch (contentType) {
             case DEVIANTART:
                 doLoadDeviantArt(contentUrl);
@@ -791,10 +791,10 @@ public class MediaView extends FullScreenActivity
             url = url.substring(0, url.length() - 1);
         }
         final String finalUrl = url;
-        String hash = url.substring(url.lastIndexOf("/"), url.length());
+        String hash = url.substring(url.lastIndexOf("/"));
 
         if (NetworkUtil.isConnected(this)) {
-            if (hash.startsWith("/")) hash = hash.substring(1, hash.length());
+            if (hash.startsWith("/")) hash = hash.substring(1);
             final String apiUrl = "https://imgur-apiv3.p.mashape.com/3/image/" + hash + ".json";
             LogUtil.v(apiUrl);
 
@@ -1187,13 +1187,11 @@ public class MediaView extends FullScreenActivity
                                         .imageScaleType(ImageScaleType.NONE)
                                         .cacheInMemory(false)
                                         .build(), new ImageLoadingListener() {
-                                    private View mView;
 
                                     @Override
                                     public void onLoadingStarted(String imageUri, View view) {
                                         imageShown = true;
                                         size.setVisibility(View.VISIBLE);
-                                        mView = view;
                                     }
 
                                     @Override

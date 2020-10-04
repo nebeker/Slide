@@ -98,8 +98,8 @@ public class ModLogAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public ModLogViewHolder(View itemView) {
             super(itemView);
-            body = (SpoilerRobotoTextView) itemView.findViewById(R.id.body);
-            icon = (ImageView) itemView.findViewById(R.id.action);
+            body = itemView.findViewById(R.id.body);
+            icon = itemView.findViewById(R.id.action);
         }
     }
 
@@ -210,7 +210,7 @@ public class ModLogAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     break;
                 case "distinguish":
                     holder.icon.setImageDrawable(ResourcesCompat.getDrawable(mContext.getResources(),
-                            R.drawable.iconstarfilled, null));
+                            R.drawable.star, null));
                     break;
                 case "sticky":
                 case "unsticky":

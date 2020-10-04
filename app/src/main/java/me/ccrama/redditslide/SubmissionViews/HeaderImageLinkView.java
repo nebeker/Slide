@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.text.Html;
@@ -283,7 +284,7 @@ public class HeaderImageLinkView extends RelativeLayout {
                         url = submission.getUrl();
                         url = url.substring(0, url.lastIndexOf(".")) + (SettingValues.lqLow ? "m"
                                 : (SettingValues.lqMid ? "l" : "h")) + url.substring(
-                                url.lastIndexOf("."), url.length());
+                                url.lastIndexOf("."));
                     } else {
                         int length = submission.getThumbnails().getVariations().length;
                         if (SettingValues.lqLow && length >= 3) {
@@ -369,7 +370,7 @@ public class HeaderImageLinkView extends RelativeLayout {
                         url = submission.getUrl();
                         url = url.substring(0, url.lastIndexOf(".")) + (SettingValues.lqLow ? "m"
                                 : (SettingValues.lqMid ? "l" : "h")) + url.substring(
-                                url.lastIndexOf("."), url.length());
+                                url.lastIndexOf("."));
                     } else {
                         int length = submission.getThumbnails().getVariations().length;
                         if (SettingValues.lqLow && length >= 3) {
@@ -600,12 +601,12 @@ public class HeaderImageLinkView extends RelativeLayout {
                 TypedArray ta = getContext().obtainStyledAttributes(attrs);
 
                 int color = ta.getColor(0, Color.WHITE);
-                Drawable open = getResources().getDrawable(R.drawable.ic_open_in_browser);
-                open.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-                Drawable share = getResources().getDrawable(R.drawable.ic_share);
-                share.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-                Drawable copy = getResources().getDrawable(R.drawable.ic_content_copy);
-                copy.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+                Drawable open = getResources().getDrawable(R.drawable.open_in_browser);
+                open.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+                Drawable share = getResources().getDrawable(R.drawable.share);
+                share.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+                Drawable copy = getResources().getDrawable(R.drawable.copy);
+                copy.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
 
                 ta.recycle();
 
@@ -702,14 +703,6 @@ public class HeaderImageLinkView extends RelativeLayout {
         };
     }
 
-    public void setSecondSubtitle(TextView v) {
-        secondSubTitle = v;
-    }
-
-    public void setSecondTitle(TextView v) {
-        secondTitle = v;
-    }
-
     public void setSubmission(final Submission submission, final boolean full, String baseSub,
             ContentType.Type type) {
         this.type = type;
@@ -746,8 +739,8 @@ public class HeaderImageLinkView extends RelativeLayout {
 
     public void setWrapArea(View v) {
         wrapArea = v;
-        setSecondTitle((TextView) v.findViewById(R.id.contenttitle));
-        setSecondSubtitle((TextView) v.findViewById(R.id.contenturl));
+        secondTitle = v.findViewById(R.id.contenttitle);
+        secondSubTitle = v.findViewById(R.id.contenturl);
 
     }
 

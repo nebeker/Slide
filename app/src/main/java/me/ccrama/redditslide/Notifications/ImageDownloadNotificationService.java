@@ -91,7 +91,7 @@ public class ImageDownloadNotificationService extends Service {
             mBuilder = new NotificationCompat.Builder(getApplicationContext(), Reddit.CHANNEL_IMG);
             mBuilder.setContentTitle(getString(R.string.mediaview_notif_title))
                     .setContentText(getString(R.string.mediaview_notif_text))
-                    .setSmallIcon(R.drawable.save_png);
+                    .setSmallIcon(R.drawable.save_content);
         }
 
         @Override
@@ -326,13 +326,13 @@ public class ImageDownloadNotificationService extends Service {
                             Notification notif = new NotificationCompat.Builder(
                                     getApplicationContext(), Reddit.CHANNEL_IMG).setContentTitle(
                                     getString(R.string.info_photo_saved))
-                                    .setSmallIcon(R.drawable.save_png)
+                                    .setSmallIcon(R.drawable.save_content)
                                     .setLargeIcon(loadedImage)
                                     .setContentIntent(pContentIntent)
-                                    .addAction(R.drawable.ic_share, getString(R.string.share_image),
+                                    .addAction(R.drawable.share, getString(R.string.share_image),
                                             pShareIntent)
                                     //maybe add this in later .addAction(R.drawable.edit, "EDIT", pEditIntent)
-                                    .addAction(R.drawable.ic_delete, getString(R.string.btn_delete),
+                                    .addAction(R.drawable.delete, getString(R.string.btn_delete),
                                             pDeleteIntent)
                                     .setStyle(new NotificationCompat.BigPictureStyle().bigPicture(
                                             Bitmap.createScaledBitmap(loadedImage, 400, 400,
@@ -358,9 +358,8 @@ public class ImageDownloadNotificationService extends Service {
                             ? String.format("%03d_", index) : "") + UUID.randomUUID().toString() + (
                             URL.endsWith("png") ? ".png" : ".jpg"));
 
-            FileOutputStream out = null;
             f.createNewFile();
-            out = new FileOutputStream(f);
+            FileOutputStream out = new FileOutputStream(f);
             bitmap.compress(
                     URL.endsWith("png") ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG,
                     100, out);

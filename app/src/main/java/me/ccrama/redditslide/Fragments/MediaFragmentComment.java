@@ -75,7 +75,6 @@ public class MediaFragmentComment extends Fragment {
     private boolean               hidden;
     private long                   stopPosition;
     public  boolean               isGif;
-    private GifUtils.AsyncLoadGif gif;
     private CommentUrlObject      s;
     private OkHttpClient          client;
     private Gson                  gson;
@@ -181,10 +180,7 @@ public class MediaFragmentComment extends Fragment {
                                                     + c.getDataNode()
                                                     .get("link_id")
                                                     .asText()
-                                                    .substring(3, c.getDataNode()
-                                                            .get("link_id")
-                                                            .asText()
-                                                            .length())
+                                                    .substring(3)
                                                     + "/nothing/"
                                                     + c.getId()
                                                     + "?context=3";
@@ -204,7 +200,7 @@ public class MediaFragmentComment extends Fragment {
         super.onCreate(savedInstanceState);
         Bundle bundle = this.getArguments();
         i = bundle.getInt("page");
-        s = ((ShadowboxComments) getActivity()).comments.get(i);
+        s = ShadowboxComments.comments.get(i);
         sub = s.comment.getComment().getSubredditName();
         contentUrl = bundle.getString("contentUrl");
         client = Reddit.client;
@@ -305,8 +301,7 @@ public class MediaFragmentComment extends Fragment {
                     if (type == ContentType.Type.IMAGE) {
                         if (SettingValues.image) {
                             Intent myIntent = new Intent(contextActivity, MediaView.class);
-                            String url;
-                            url = submission.getUrl();
+                            String url = submission.getUrl();
                             myIntent.putExtra(MediaView.EXTRA_DISPLAY_URL, submission.getUrl());
                             myIntent.putExtra(MediaView.EXTRA_URL, url);
                             myIntent.putExtra(MediaView.SUBREDDIT, submission.getSubredditName());
@@ -331,7 +326,7 @@ public class MediaFragmentComment extends Fragment {
         rootView.findViewById(R.id.submission_image).setVisibility(View.GONE);
         final ProgressBar loader = rootView.findViewById(R.id.gifprogress);
         rootView.findViewById(R.id.progress).setVisibility(View.GONE);
-        gif = new GifUtils.AsyncLoadGif(getActivity(), videoView, loader,
+        GifUtils.AsyncLoadGif gif = new GifUtils.AsyncLoadGif(getActivity(), videoView, loader,
                 rootView.findViewById(R.id.placeholder), false, true, sub);
         gif.execute(dat);
     }
@@ -372,11 +367,11 @@ public class MediaFragmentComment extends Fragment {
             url = url.substring(0, url.length() - 1);
         }
         final String finalUrl = url;
-        String hash = url.substring(url.lastIndexOf("/"), url.length());
+        String hash = url.substring(url.lastIndexOf("/"));
 
         if (NetworkUtil.isConnected(getActivity())) {
 
-            if (hash.startsWith("/")) hash = hash.substring(1, hash.length());
+            if (hash.startsWith("/")) hash = hash.substring(1);
             final String apiUrl = "https://imgur-apiv3.p.mashape.com/3/image/" + hash + ".json";
             LogUtil.v(apiUrl);
 
@@ -615,12 +610,10 @@ public class MediaFragmentComment extends Fragment {
                                         .imageScaleType(ImageScaleType.NONE)
                                         .cacheInMemory(false)
                                         .build(), new ImageLoadingListener() {
-                                    private View mView;
 
                                     @Override
                                     public void onLoadingStarted(String imageUri, View view) {
                                         imageShown = true;
-                                        mView = view;
                                     }
 
                                     @Override

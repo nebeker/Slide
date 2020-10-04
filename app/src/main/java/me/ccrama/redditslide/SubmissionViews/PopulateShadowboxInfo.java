@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -495,18 +496,18 @@ public class PopulateShadowboxInfo {
         Drawable profile = mContext.getResources().getDrawable(R.drawable.profile);
         final Drawable sub = mContext.getResources().getDrawable(R.drawable.sub);
         final Drawable report = mContext.getResources().getDrawable(R.drawable.report);
-        Drawable copy = mContext.getResources().getDrawable(R.drawable.ic_content_copy);
-        Drawable open = mContext.getResources().getDrawable(R.drawable.openexternal);
+        Drawable copy = mContext.getResources().getDrawable(R.drawable.copy);
+        Drawable open = mContext.getResources().getDrawable(R.drawable.open_external);
         Drawable link = mContext.getResources().getDrawable(R.drawable.link);
         Drawable reddit = mContext.getResources().getDrawable(R.drawable.commentchange);
 
-        profile.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        sub.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        report.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        copy.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        open.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        link.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        reddit.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        profile.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        sub.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        report.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        copy.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        open.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        link.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        reddit.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
 
         ta.recycle();
 

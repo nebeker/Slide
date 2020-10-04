@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -210,7 +209,7 @@ public class MediaFragment extends Fragment {
                 rootView.findViewById(R.id.submission_image).setAlpha(0.5f);
                 break;
             case SELF:
-                typeImage.setImageResource(R.drawable.fontsizedarker);
+                typeImage.setImageResource(R.drawable.fontsize);
                 break;
             case EMBEDDED:
             case VIDEO:
@@ -248,9 +247,7 @@ public class MediaFragment extends Fragment {
                     @Override
                     public void onGlobalLayout() {
                         slideLayout.setPanelHeight(title.getMeasuredHeight());
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            title.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        }
+                        title.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                     }
                 });
         slideLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
@@ -567,11 +564,11 @@ public class MediaFragment extends Fragment {
             url = url.substring(0, url.length() - 1);
         }
         final String finalUrl = url;
-        String hash = url.substring(url.lastIndexOf("/"), url.length());
+        String hash = url.substring(url.lastIndexOf("/"));
 
         if (NetworkUtil.isConnected(getActivity())) {
 
-            if (hash.startsWith("/")) hash = hash.substring(1, hash.length());
+            if (hash.startsWith("/")) hash = hash.substring(1);
             final String apiUrl = "https://imgur-apiv3.p.mashape.com/3/image/" + hash + ".json";
             LogUtil.v(apiUrl);
 
@@ -878,12 +875,10 @@ public class MediaFragment extends Fragment {
                                         .imageScaleType(ImageScaleType.NONE)
                                         .cacheInMemory(false)
                                         .build(), new ImageLoadingListener() {
-                                    private View mView;
 
                                     @Override
                                     public void onLoadingStarted(String imageUri, View view) {
                                         imageShown = true;
-                                        mView = view;
                                     }
 
                                     @Override

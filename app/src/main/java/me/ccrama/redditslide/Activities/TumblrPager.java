@@ -8,6 +8,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -382,7 +383,7 @@ public class TumblrPager extends FullScreenActivity
                 public void run() {
 
                 }
-            }, false, true, (TextView) rootView.findViewById(R.id.size),  ((TumblrPager) getActivity()).subreddit).execute(url);
+            }, false, true, rootView.findViewById(R.id.size),  ((TumblrPager) getActivity()).subreddit).execute(url);
             rootView.findViewById(R.id.more).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -416,15 +417,15 @@ public class TumblrPager extends FullScreenActivity
         TypedArray ta = obtainStyledAttributes(attrs);
 
         int color = ta.getColor(0, Color.WHITE);
-        Drawable external = getResources().getDrawable(R.drawable.openexternal);
+        Drawable external = getResources().getDrawable(R.drawable.open_external);
         Drawable share = getResources().getDrawable(R.drawable.share);
         Drawable image = getResources().getDrawable(R.drawable.image);
         Drawable save = getResources().getDrawable(R.drawable.save);
 
-        external.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        share.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        save.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        external.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        share.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        image.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        save.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
 
         ta.recycle();
         BottomSheet.Builder b = new BottomSheet.Builder(this).title(contentUrl);
@@ -542,12 +543,12 @@ public class TumblrPager extends FullScreenActivity
                     (rootView.findViewById(R.id.margin)).setPadding(0, 0, 0, 0);
                 } else if (title.isEmpty()) {
                     setTextWithLinks(description,
-                            ((SpoilerRobotoTextView) rootView.findViewById(R.id.title)));
+                            rootView.findViewById(R.id.title));
                 } else {
                     setTextWithLinks(title,
-                            ((SpoilerRobotoTextView) rootView.findViewById(R.id.title)));
+                            rootView.findViewById(R.id.title));
                     setTextWithLinks(description,
-                            ((SpoilerRobotoTextView) rootView.findViewById(R.id.body)));
+                            rootView.findViewById(R.id.body));
                 }
                 {
                     int type = new FontPreferences(getContext()).getFontTypeComment().getTypeface();
@@ -657,11 +658,9 @@ public class TumblrPager extends FullScreenActivity
                                 .imageScaleType(ImageScaleType.NONE)
                                 .cacheInMemory(false)
                                 .build(), new ImageLoadingListener() {
-                            private View mView;
 
                             @Override
                             public void onLoadingStarted(String imageUri, View view) {
-                                mView = view;
                                 size.setVisibility(View.VISIBLE);
                             }
 

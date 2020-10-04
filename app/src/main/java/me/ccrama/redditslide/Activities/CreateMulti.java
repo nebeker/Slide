@@ -19,6 +19,7 @@ package me.ccrama.redditslide.Activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -65,7 +66,6 @@ import me.ccrama.redditslide.util.LogUtil;
 public class CreateMulti extends BaseActivityAnim {
 
     private ArrayList<String> subs;
-    private boolean delete = false;
     private CustomAdapter adapter;
     private EditText title;
     private RecyclerView recyclerView;
@@ -78,7 +78,7 @@ public class CreateMulti extends BaseActivityAnim {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        overrideRedditSwipeAnywhere();
+        overrideSwipeFromAnywhere();
 
         super.onCreate(savedInstanceState);
         applyColorTheme();
@@ -118,6 +118,26 @@ public class CreateMulti extends BaseActivityAnim {
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialogWrapper.Builder(CreateMulti.this).setTitle(R.string.general_confirm_exit)
+                .setMessage(R.string.multi_save_option)
+                .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        MultiredditOverview.multiActivity.finish();
+                        new SaveMulti().execute();
+                    }
+                })
+                .setNegativeButton(R.string.btn_no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        finish();
+                    }
+                })
+                .show();
     }
 
     public void showSelectDialog() {
@@ -285,7 +305,8 @@ public class CreateMulti extends BaseActivityAnim {
             holder.text.setText(origPos);
 
             holder.itemView.findViewById(R.id.color).setBackgroundResource(R.drawable.circle);
-            holder.itemView.findViewById(R.id.color).getBackground().setColorFilter(Palette.getColor(origPos), PorterDuff.Mode.MULTIPLY);
+            holder.itemView.findViewById(R.id.color).getBackground().setColorFilter(
+                    new PorterDuffColorFilter(Palette.getColor(origPos), PorterDuff.Mode.MULTIPLY));
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -317,7 +338,7 @@ public class CreateMulti extends BaseActivityAnim {
             public ViewHolder(View itemView) {
                 super(itemView);
 
-                text = (TextView) itemView.findViewById(R.id.name);
+                text = itemView.findViewById(R.id.name);
 
 
             }
@@ -339,24 +360,20 @@ public class CreateMulti extends BaseActivityAnim {
                     Log.v(LogUtil.getTag(), "Invalid multi name");
                     throw new IllegalArgumentException(multiName);
                 }
-                if (delete) {
-                    Log.v(LogUtil.getTag(), "Deleting");
-                    new MultiRedditManager(Authentication.reddit).delete(old);
-                } else {
-                    if (old != null && !old.isEmpty() && !old.replace(" ", "").equals(multiName)) {
-                        Log.v(LogUtil.getTag(), "Renaming");
-                        new MultiRedditManager(Authentication.reddit).rename(old, multiName);
-                    }
-                    Log.v(LogUtil.getTag(), "Create or Update, Name: " + multiName);
-                    new MultiRedditManager(Authentication.reddit).createOrUpdate(new MultiRedditUpdateRequest.Builder(Authentication.name, multiName).subreddits(subs).build());
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.v(LogUtil.getTag(), "Update Subreddits");
-                            new UserSubscriptions.SyncMultireddits(CreateMulti.this).execute();
-                        }
-                    });
+                if (old != null && !old.isEmpty() && !old.replace(" ", "").equals(multiName)) {
+                    Log.v(LogUtil.getTag(), "Renaming");
+                    new MultiRedditManager(Authentication.reddit).rename(old, multiName);
                 }
+                Log.v(LogUtil.getTag(), "Create or Update, Name: " + multiName);
+                new MultiRedditManager(Authentication.reddit).createOrUpdate(new MultiRedditUpdateRequest.Builder(Authentication.name, multiName).subreddits(subs).build());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.v(LogUtil.getTag(), "Update Subreddits");
+                        MultiredditOverview.multiActivity.finish();
+                        new UserSubscriptions.SyncMultireddits(CreateMulti.this).execute();
+                    }
+                });
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -433,6 +450,7 @@ public class CreateMulti extends BaseActivityAnim {
                         .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                MultiredditOverview.multiActivity.finish();
                                 new MaterialDialog.Builder(CreateMulti.this)
                                         .title(R.string.deleting)
                                         .progress(true, 100)

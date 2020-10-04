@@ -5,7 +5,7 @@
              android:layout_height="match_parent"
              android:background="?attr/activity_background">
 
-    <me.ccrama.redditslide.Views.GeneralSwipeRefreshLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/activity_main_swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -17,7 +17,7 @@
                 android:fadeScrollbars="true"
                 android:orientation="vertical"
                 android:scrollbars="vertical"/>
-    </me.ccrama.redditslide.Views.GeneralSwipeRefreshLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <LinearLayout
             android:id="@+id/commentnav"
@@ -42,7 +42,7 @@
                 android:layout_width="48dp"
                 android:layout_height="36dp"
                 android:padding="8dp"
-                app:srcCompat="@drawable/nav"
+                app:srcCompat="@drawable/navigation"
                 android:contentDescription="@string/btn_nav_mode"/>
         <ImageView
             android:id="@+id/collapse_expand"

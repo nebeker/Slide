@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -258,17 +259,17 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     final int color = ta.getColor(0, Color.WHITE);
                     Drawable profile = mContext.getResources().getDrawable(R.drawable.profile);
                     final Drawable reply = mContext.getResources().getDrawable(R.drawable.reply);
-                    Drawable unhide = mContext.getResources().getDrawable(R.drawable.ic_visibility);
+                    Drawable unhide = mContext.getResources().getDrawable(R.drawable.visibility);
                     Drawable hide = mContext.getResources().getDrawable(R.drawable.hide);
-                    Drawable copy = mContext.getResources().getDrawable(R.drawable.ic_content_copy);
+                    Drawable copy = mContext.getResources().getDrawable(R.drawable.copy);
                     Drawable reddit = mContext.getResources().getDrawable(R.drawable.commentchange);
 
-                    profile.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-                    hide.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-                    copy.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-                    reddit.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-                    reply.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-                    unhide.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+                    profile.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+                    hide.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+                    copy.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+                    reddit.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+                    reply.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+                    unhide.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
 
                     ta.recycle();
 
@@ -426,7 +427,7 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         final View dialoglayout = inflater.inflate(R.layout.edit_comment, null);
         final AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(mContext);
 
-        final EditText e = (EditText) dialoglayout.findViewById(R.id.entry);
+        final EditText e = dialoglayout.findViewById(R.id.entry);
 
         DoEditorActions.doActions(e, dialoglayout,
                 ((AppCompatActivity) mContext).getSupportFragmentManager(), (Activity) mContext,
@@ -492,7 +493,7 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 Snackbar s = Snackbar.make(listView, "Reply sent!", Snackbar.LENGTH_LONG);
                 View view = s.getView();
                 TextView tv =
-                        (TextView) view.findViewById(com.google.android.material.R.id.snackbar_text);
+                        view.findViewById(com.google.android.material.R.id.snackbar_text);
                 tv.setTextColor(Color.WHITE);
                 s.show();
             } else {
@@ -500,7 +501,7 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         Snackbar.LENGTH_LONG);
                 View view = s.getView();
                 TextView tv =
-                        (TextView) view.findViewById(com.google.android.material.R.id.snackbar_text);
+                        view.findViewById(com.google.android.material.R.id.snackbar_text);
                 tv.setTextColor(Color.WHITE);
                 s.show();
                 Drafts.addDraft(text);

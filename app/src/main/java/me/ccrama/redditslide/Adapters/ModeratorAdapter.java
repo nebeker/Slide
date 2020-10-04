@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -48,7 +49,6 @@ import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.managers.ModerationManager;
 import net.dean.jraw.models.Comment;
-import net.dean.jraw.models.Contribution;
 import net.dean.jraw.models.DistinguishedStatus;
 import net.dean.jraw.models.PublicContribution;
 import net.dean.jraw.models.Submission;
@@ -613,27 +613,27 @@ public class ModeratorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         final Drawable approve = mContext.getResources().getDrawable(R.drawable.support);
         final Drawable nsfw = mContext.getResources().getDrawable(R.drawable.hide);
         final Drawable pin = mContext.getResources().getDrawable(R.drawable.sub);
-        final Drawable distinguish = mContext.getResources().getDrawable(R.drawable.iconstarfilled);
+        final Drawable distinguish = mContext.getResources().getDrawable(R.drawable.star);
         final Drawable remove = mContext.getResources().getDrawable(R.drawable.close);
         final Drawable ban = mContext.getResources().getDrawable(R.drawable.ban);
         final Drawable spam = mContext.getResources().getDrawable(R.drawable.spam);
         final Drawable note = mContext.getResources().getDrawable(R.drawable.note);
-        final Drawable removeReason = mContext.getResources().getDrawable(R.drawable.reportreason);
+        final Drawable removeReason = mContext.getResources().getDrawable(R.drawable.report_reason);
         final Drawable lock = mContext.getResources().getDrawable(R.drawable.lock);
 
         //Tint drawables
-        profile.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        report.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        approve.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        nsfw.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        distinguish.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        remove.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        pin.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        ban.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        spam.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        note.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        removeReason.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        lock.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        profile.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        report.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        approve.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        nsfw.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        distinguish.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        remove.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        pin.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        ban.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        spam.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        note.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        removeReason.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        lock.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
 
         ta.recycle();
 

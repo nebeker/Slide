@@ -13,7 +13,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -101,7 +100,7 @@ public class LinkUtil {
                                 pendingIntent)
                         .setCloseButtonIcon(drawableToBitmap(
                                 ContextCompat.getDrawable(contextActivity,
-                                        R.drawable.ic_arrow_back_white_24dp)));
+                                        R.drawable.left)));
         try {
             CustomTabsIntent customTabsIntent = builder.build();
 
@@ -168,11 +167,7 @@ public class LinkUtil {
         }
 
         Uri uri = Uri.parse(url);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return uri.normalizeScheme();
-        } else {
-            return uri;
-        }
+        return uri.normalizeScheme();
     }
 
     public static boolean tryOpenWithVideoPlugin(@NonNull String url) {

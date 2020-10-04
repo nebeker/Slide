@@ -13,9 +13,11 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.text.Html;
 import android.text.InputType;
 import android.text.SpannableStringBuilder;
@@ -44,6 +46,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.cocosw.bottomsheet.BottomSheet;
 import com.devspark.robototextview.RobotoTypefaces;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.material.snackbar.Snackbar;
 
 import net.dean.jraw.ApiException;
@@ -74,6 +77,7 @@ import me.ccrama.redditslide.ActionStates;
 import me.ccrama.redditslide.Activities.Album;
 import me.ccrama.redditslide.Activities.AlbumPager;
 import me.ccrama.redditslide.Activities.FullscreenVideo;
+import me.ccrama.redditslide.Activities.GalleryImage;
 import me.ccrama.redditslide.Activities.MainActivity;
 import me.ccrama.redditslide.Activities.MediaView;
 import me.ccrama.redditslide.Activities.ModQueue;
@@ -81,6 +85,7 @@ import me.ccrama.redditslide.Activities.MultiredditOverview;
 import me.ccrama.redditslide.Activities.PostReadLater;
 import me.ccrama.redditslide.Activities.Profile;
 import me.ccrama.redditslide.Activities.Reauthenticate;
+import me.ccrama.redditslide.Activities.RedditGallery;
 import me.ccrama.redditslide.Activities.Search;
 import me.ccrama.redditslide.Activities.SubredditView;
 import me.ccrama.redditslide.Activities.Tumblr;
@@ -201,6 +206,40 @@ public class PopulateSubmissionViewHolder {
                                 case REDDIT:
                                     openRedditContent(submission.getUrl(), contextActivity);
                                     break;
+                                case REDDIT_GALLERY:
+                                    if (SettingValues.album) {
+                                        Intent i = new Intent(contextActivity, RedditGallery.class);
+                                        i.putExtra(RedditGallery.SUBREDDIT,
+                                                submission.getSubredditName());
+
+                                        ArrayList<GalleryImage> urls = new ArrayList<>();
+
+                                        JsonNode dataNode = submission.getDataNode();
+                                        if (dataNode.has("gallery_data")) {
+                                            for (JsonNode identifier : dataNode.get("gallery_data").get("items")) {
+                                                if (dataNode.has("media_metadata") && dataNode.get(
+                                                        "media_metadata")
+                                                        .has(identifier.get("media_id").asText())) {
+                                                    urls.add(new GalleryImage(dataNode.get("media_metadata")
+                                                            .get(identifier.get("media_id").asText())
+                                                            .get("s")));
+                                                }
+                                            }
+                                        }
+
+                                        Bundle urlsBundle = new Bundle();
+                                        urlsBundle.putSerializable(RedditGallery.GALLERY_URLS, urls);
+                                        i.putExtras(urlsBundle);
+
+                                        addAdaptorPosition(i, submission,
+                                                holder.getAdapterPosition());
+                                        contextActivity.startActivity(i);
+                                        contextActivity.overridePendingTransition(R.anim.slideright,
+                                                R.anim.fade_out);
+                                    } else {
+                                        LinkUtil.openExternally(submission.getUrl());
+                                    }
+                                    break;
                                 case LINK:
                                     LinkUtil.openUrl(submission.getUrl(),
                                             Palette.getColor(submission.getSubredditName()),
@@ -234,7 +273,6 @@ public class PopulateSubmissionViewHolder {
                                                 R.anim.fade_out);
                                     } else {
                                         LinkUtil.openExternally(submission.getUrl());
-
                                     }
                                     break;
                                 case TUMBLR:
@@ -309,9 +347,8 @@ public class PopulateSubmissionViewHolder {
         if (SettingValues.image) {
             Intent myIntent = new Intent(contextActivity, MediaView.class);
             myIntent.putExtra(MediaView.SUBREDDIT, submission.getSubredditName());
-            String url;
             String previewUrl;
-            url = submission.getUrl();
+            String url = submission.getUrl();
 
             if (baseView != null
                     && baseView.lq
@@ -513,18 +550,18 @@ public class PopulateSubmissionViewHolder {
         final Drawable sub =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sub, null);
         Drawable saved =
-                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.iconstarfilled,
+                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.star,
                         null);
         Drawable hide = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.hide, null);
         final Drawable report =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.report, null);
         Drawable copy =
-                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.ic_content_copy,
+                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.copy,
                         null);
         final Drawable readLater =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.save, null);
         Drawable open =
-                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.openexternal, null);
+                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.open_external, null);
         Drawable link = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.link, null);
         Drawable reddit =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.commentchange,
@@ -534,18 +571,18 @@ public class PopulateSubmissionViewHolder {
         Drawable crosspost =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.forward, null);
 
-        profile.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        sub.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        saved.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        hide.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        report.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        copy.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        open.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        link.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        reddit.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        readLater.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        filter.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        crosspost.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        profile.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        sub.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        saved.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        hide.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        report.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        copy.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        open.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        link.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        reddit.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        readLater.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        filter.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        crosspost.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
 
         ta.recycle();
 
@@ -1028,13 +1065,14 @@ public class PopulateSubmissionViewHolder {
                                                         (ClipboardManager) mContext.getSystemService(
                                                                 Context.CLIPBOARD_SERVICE);
                                                 ClipData clip = ClipData.newPlainText("Selftext",
-                                                        Html.fromHtml(submission.getTitle()
-                                                                + "\n\n"
-                                                                + submission.getSelftext()));
+                                                        StringEscapeUtils.unescapeHtml4(
+                                                                submission.getTitle()
+                                                                        + "\n\n"
+                                                                        + submission.getSelftext()));
                                                 clipboard.setPrimaryClip(clip);
 
                                                 Toast.makeText(mContext,
-                                                        R.string.submission_comment_copied,
+                                                        R.string.submission_text_copied,
                                                         Toast.LENGTH_SHORT).show();
                                             }
                                         })
@@ -1076,7 +1114,7 @@ public class PopulateSubmissionViewHolder {
                         ((ImageView) holder.save).setColorFilter(
                                 ContextCompat.getColor(mContext, R.color.md_amber_500),
                                 PorterDuff.Mode.SRC_ATOP);
-                        ((ImageView) holder.save).setContentDescription(mContext.getString(R.string.btn_unsave));
+                        holder.save.setContentDescription(mContext.getString(R.string.btn_unsave));
                         s = Snackbar.make(holder.itemView, R.string.submission_info_saved,
                                 Snackbar.LENGTH_LONG);
                         if (Authentication.me.hasGold()) {
@@ -1098,7 +1136,7 @@ public class PopulateSubmissionViewHolder {
                                         && holder.itemView.getTag(holder.itemView.getId())
                                         .equals("none"))) || full) ? getCurrentTintColor(mContext)
                                         : getWhiteTintColor(), PorterDuff.Mode.SRC_ATOP);
-                        ((ImageView) holder.save).setContentDescription(mContext.getString(R.string.btn_save));
+                        holder.save.setContentDescription(mContext.getString(R.string.btn_save));
 
                     }
                     View view = s.getView();
@@ -1374,36 +1412,36 @@ public class PopulateSubmissionViewHolder {
         final Drawable lock =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.lock, null);
         final Drawable flair = ResourcesCompat.getDrawable(mContext.getResources(),
-                R.drawable.ic_format_quote_white_48dp, null);
+                R.drawable.quote, null);
         final Drawable remove =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.close, null);
         final Drawable remove_reason =
-                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.reportreason, null);
+                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.report_reason, null);
         final Drawable ban =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.ban, null);
         final Drawable spam =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.spam, null);
         final Drawable distinguish =
-                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.iconstarfilled,
+                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.star,
                         null);
         final Drawable note = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.note, null);
 
 
-        profile.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        report.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        approve.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        spam.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        nsfw.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        pin.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        flair.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        remove.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        spoiler.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        remove_reason.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        ban.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        spam.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        distinguish.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        lock.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        note.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        profile.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        report.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        approve.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        spam.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        nsfw.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        pin.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        flair.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        remove.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        spoiler.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        remove_reason.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        ban.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        spam.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        distinguish.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        lock.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        note.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
 
         ta.recycle();
 
@@ -2721,14 +2759,14 @@ public class PopulateSubmissionViewHolder {
                 ((ImageView) holder.save).setColorFilter(
                         ContextCompat.getColor(mContext, R.color.md_amber_500),
                         PorterDuff.Mode.SRC_ATOP);
-                ((ImageView) holder.save).setContentDescription(mContext.getString(R.string.btn_unsave));
+                holder.save.setContentDescription(mContext.getString(R.string.btn_unsave));
             } else {
                 ((ImageView) holder.save).setColorFilter(
                         (((holder.itemView.getTag(holder.itemView.getId())) != null
                                 && holder.itemView.getTag(holder.itemView.getId()).equals("none")
                                 || full)) ? getCurrentTintColor(mContext) : getWhiteTintColor(),
                         PorterDuff.Mode.SRC_ATOP);
-                ((ImageView) holder.save).setContentDescription(mContext.getString(R.string.btn_save));
+                holder.save.setContentDescription(mContext.getString(R.string.btn_save));
             }
             holder.save.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -3057,12 +3095,12 @@ public class PopulateSubmissionViewHolder {
                             Drawable delete_drawable =
                                     mContext.getResources().getDrawable(R.drawable.delete);
                             Drawable flair_drawable =
-                                    mContext.getResources().getDrawable(R.drawable.fontsizedarker);
+                                    mContext.getResources().getDrawable(R.drawable.fontsize);
 
-                            edit_drawable.setColorFilter(color2, PorterDuff.Mode.SRC_ATOP);
-                            nsfw_drawable.setColorFilter(color2, PorterDuff.Mode.SRC_ATOP);
-                            delete_drawable.setColorFilter(color2, PorterDuff.Mode.SRC_ATOP);
-                            flair_drawable.setColorFilter(color2, PorterDuff.Mode.SRC_ATOP);
+                            edit_drawable.setColorFilter(new PorterDuffColorFilter(color2, PorterDuff.Mode.SRC_ATOP));
+                            nsfw_drawable.setColorFilter(new PorterDuffColorFilter(color2, PorterDuff.Mode.SRC_ATOP));
+                            delete_drawable.setColorFilter(new PorterDuffColorFilter(color2, PorterDuff.Mode.SRC_ATOP));
+                            flair_drawable.setColorFilter(new PorterDuffColorFilter(color2, PorterDuff.Mode.SRC_ATOP));
 
                             ta.recycle();
 

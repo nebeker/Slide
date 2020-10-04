@@ -13,7 +13,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 import androidx.recyclerview.widget.RecyclerView;
@@ -289,7 +288,7 @@ public class MultiredditView extends Fragment implements SubmissionDisplay {
                 fab.show();
             }
 
-            rv.addOnScrollListener(new ToolbarScrollHideHandler((Toolbar) (getActivity()).findViewById(R.id.toolbar), getActivity().findViewById(R.id.header)) {
+            rv.addOnScrollListener(new ToolbarScrollHideHandler((getActivity()).findViewById(R.id.toolbar), getActivity().findViewById(R.id.header)) {
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
@@ -297,8 +296,7 @@ public class MultiredditView extends Fragment implements SubmissionDisplay {
                     visibleItemCount = rv.getLayoutManager().getChildCount();
                     totalItemCount = rv.getLayoutManager().getItemCount();
 
-                    int[] firstVisibleItems;
-                    firstVisibleItems = ((CatchStaggeredGridLayoutManager) rv.getLayoutManager()).findFirstVisibleItemPositions(null);
+                    int[] firstVisibleItems = ((CatchStaggeredGridLayoutManager) rv.getLayoutManager()).findFirstVisibleItemPositions(null);
                     if (firstVisibleItems != null && firstVisibleItems.length > 0) {
                         for (int firstVisibleItem : firstVisibleItems) {
                             pastVisiblesItems = firstVisibleItem;

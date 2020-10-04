@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.text.Html;
@@ -276,9 +277,8 @@ public class PopulateNewsViewHolder {
         if (SettingValues.image) {
             Intent myIntent = new Intent(contextActivity, MediaView.class);
             myIntent.putExtra(MediaView.SUBREDDIT, submission.getSubredditName());
-            String url;
             String previewUrl;
-            url = submission.getUrl();
+            String url = submission.getUrl();
 
             if (baseView != null
                     && baseView.lq
@@ -431,18 +431,18 @@ public class PopulateNewsViewHolder {
         final Drawable sub =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sub, null);
         Drawable saved =
-                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.iconstarfilled,
+                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.star,
                         null);
         Drawable hide = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.hide, null);
         final Drawable report =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.report, null);
         Drawable copy =
-                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.ic_content_copy,
+                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.copy,
                         null);
         final Drawable readLater =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.save, null);
         Drawable open =
-                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.openexternal, null);
+                ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.open_external, null);
         Drawable link = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.link, null);
         Drawable reddit =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.commentchange,
@@ -450,17 +450,17 @@ public class PopulateNewsViewHolder {
         Drawable filter =
                 ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.filter, null);
 
-        profile.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        sub.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        saved.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        hide.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        report.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        copy.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        open.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        link.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        reddit.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        readLater.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        filter.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        profile.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        sub.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        saved.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        hide.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        report.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        copy.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        open.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        link.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        reddit.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        readLater.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        filter.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
 
         ta.recycle();
 
@@ -933,13 +933,14 @@ public class PopulateNewsViewHolder {
                                                         (ClipboardManager) mContext.getSystemService(
                                                                 Context.CLIPBOARD_SERVICE);
                                                 ClipData clip = ClipData.newPlainText("Selftext",
-                                                        Html.fromHtml(submission.getTitle()
-                                                                + "\n\n"
-                                                                + submission.getSelftext()));
+                                                        StringEscapeUtils.unescapeHtml4(
+                                                                submission.getTitle()
+                                                                        + "\n\n"
+                                                                        + submission.getSelftext()));
                                                 clipboard.setPrimaryClip(clip);
 
                                                 Toast.makeText(mContext,
-                                                        R.string.submission_comment_copied,
+                                                        R.string.submission_text_copied,
                                                         Toast.LENGTH_SHORT).show();
                                             }
                                         })

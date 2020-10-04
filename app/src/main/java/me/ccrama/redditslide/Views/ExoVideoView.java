@@ -17,6 +17,7 @@ import android.view.animation.AnimationSet;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory;
@@ -30,7 +31,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.VideoListener;
 
@@ -170,24 +171,36 @@ public class ExoVideoView extends RelativeLayout {
     public void setVideoURI(Uri uri, VideoType type, Player.EventListener listener) {
         // Create the data sources used to retrieve and cache the video
         DataSource.Factory downloader = new OkHttpDataSourceFactory(Reddit.client, context.getString(R.string.app_name));
-        DataSource.Factory cacheDataSourceFactory = new CacheDataSourceFactory(Reddit.videoCache, downloader);
+        DataSource.Factory cacheDataSourceFactory =
+                new CacheDataSource.Factory()
+                        .setCache(Reddit.videoCache)
+                        .setUpstreamDataSourceFactory(downloader);
 
         // Create an appropriate media source for the video type
         MediaSource videoSource;
         switch (type) {
             // DASH video, e.g. v.redd.it video
             case DASH:
-                videoSource = new DashMediaSource.Factory(cacheDataSourceFactory).createMediaSource(uri);
+                videoSource = new DashMediaSource.Factory(cacheDataSourceFactory)
+                        .createMediaSource(
+                                new MediaItem.Builder()
+                                        .setUri(uri)
+                                        .build());
                 break;
 
             // Standard video, e.g. MP4 file
             case STANDARD:
             default:
-                videoSource = new ProgressiveMediaSource.Factory(cacheDataSourceFactory).createMediaSource(uri);
+                videoSource = new ProgressiveMediaSource.Factory(cacheDataSourceFactory)
+                        .createMediaSource(
+                                new MediaItem.Builder()
+                                        .setUri(uri)
+                                        .build());
                 break;
         }
 
-        player.prepare(videoSource);
+        player.setMediaSource(videoSource);
+        player.prepare();
         if (listener != null) {
             player.addListener(listener);
         }
@@ -369,7 +382,7 @@ public class ExoVideoView extends RelativeLayout {
          * Lose audio focus
          */
         void loseFocus() {
-            if (Build.VERSION.SDK_INT >= 26) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (request != null) {
                     manager.abandonAudioFocusRequest(request);
                 }
@@ -382,7 +395,7 @@ public class ExoVideoView extends RelativeLayout {
          * Gain audio focus
          */
         void gainFocus() {
-            if (Build.VERSION.SDK_INT >= 26) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (request == null) {
                     request = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
                             .setAcceptsDelayedFocusGain(false)

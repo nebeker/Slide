@@ -197,9 +197,8 @@ public class SubredditView extends BaseActivity {
         mToolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int[] firstVisibleItems;
                 int pastVisiblesItems = 0;
-                firstVisibleItems =
+                int[] firstVisibleItems =
                         ((CatchStaggeredGridLayoutManager) ((SubmissionsView) (adapter.getCurrentFragment())).rv
                                 .getLayoutManager()).findFirstVisibleItemPositions(null);
                 if (firstVisibleItems != null && firstVisibleItems.length > 0) {
@@ -1029,8 +1028,7 @@ public class SubredditView extends BaseActivity {
         };
 
         final String FILTER_TITLE =
-                (subreddit.equals("frontpage")) ? (getString(R.string.content_to_hide, "frontpage"))
-                        : (getString(R.string.content_to_hide, "/r/" + subreddit));
+                (getString(R.string.content_to_hide, subreddit.equals("frontpage") ? "frontpage" : "/r/" + subreddit));
 
         new AlertDialogWrapper.Builder(this).setTitle(FILTER_TITLE)
                 .alwaysCallMultiChoiceCallback()
@@ -1418,10 +1416,8 @@ public class SubredditView extends BaseActivity {
                 final TextView subscribe = (TextView) findViewById(R.id.subscribe);
 
                 currentlySubbed =
-                        (!Authentication.isLoggedIn && UserSubscriptions.getSubscriptions(this)
-                                .contains(subreddit.getDisplayName().toLowerCase(Locale.ENGLISH))) || (
-                                Authentication.isLoggedIn
-                                        && subreddit.isUserSubscriber());
+                        Authentication.isLoggedIn ? subreddit.isUserSubscriber() : UserSubscriptions.getSubscriptions(this)
+                                .contains(subreddit.getDisplayName().toLowerCase(Locale.ENGLISH));
                 doSubscribeButtonText(currentlySubbed, subscribe);
 
                 assert subscribe != null;
@@ -2070,7 +2066,7 @@ public class SubredditView extends BaseActivity {
                 Fragment f = new CommentPage();
                 Bundle args = new Bundle();
                 String name = openingComments.getFullName();
-                args.putString("id", name.substring(3, name.length()));
+                args.putString("id", name.substring(3));
                 args.putBoolean("archived", openingComments.isArchived());
                 args.putBoolean("contest",
                         openingComments.getDataNode().get("contest_mode").asBoolean());

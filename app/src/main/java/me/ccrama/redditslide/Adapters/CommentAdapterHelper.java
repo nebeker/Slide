@@ -14,6 +14,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -77,12 +78,10 @@ import me.ccrama.redditslide.OpenRedditLink;
 import me.ccrama.redditslide.R;
 import me.ccrama.redditslide.Reddit;
 import me.ccrama.redditslide.SettingValues;
-import me.ccrama.redditslide.SpoilerRobotoTextView;
 import me.ccrama.redditslide.TimeUtils;
 import me.ccrama.redditslide.Toolbox.ToolboxUI;
 import me.ccrama.redditslide.UserSubscriptions;
 import me.ccrama.redditslide.UserTags;
-import me.ccrama.redditslide.Views.CommentOverflow;
 import me.ccrama.redditslide.Views.DoEditorActions;
 import me.ccrama.redditslide.Views.RoundedBackgroundSpan;
 import me.ccrama.redditslide.Visuals.FontPreferences;
@@ -102,24 +101,24 @@ public class CommentAdapterHelper {
 
         int color = ta.getColor(0, Color.WHITE);
         Drawable profile = mContext.getResources().getDrawable(R.drawable.profile);
-        Drawable saved = mContext.getResources().getDrawable(R.drawable.iconstarfilled);
+        Drawable saved = mContext.getResources().getDrawable(R.drawable.star);
         Drawable gild = mContext.getResources().getDrawable(R.drawable.gild);
-        Drawable copy = mContext.getResources().getDrawable(R.drawable.ic_content_copy);
+        Drawable copy = mContext.getResources().getDrawable(R.drawable.copy);
         Drawable share = mContext.getResources().getDrawable(R.drawable.share);
         Drawable parent = mContext.getResources().getDrawable(R.drawable.commentchange);
         Drawable replies = mContext.getResources().getDrawable(R.drawable.notifs);
         Drawable permalink = mContext.getResources().getDrawable(R.drawable.link);
         Drawable report = mContext.getResources().getDrawable(R.drawable.report);
 
-        profile.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        saved.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        gild.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        report.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        copy.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        share.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        parent.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        permalink.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        replies.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        profile.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        saved.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        gild.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        report.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        copy.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        share.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        parent.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        permalink.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        replies.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
 
         ta.recycle();
 
@@ -166,7 +165,7 @@ public class CommentAdapterHelper {
                         //Go to comment permalink
                         String s = "https://reddit.com"
                                 + adapter.submission.getPermalink()
-                                + n.getFullName().substring(3, n.getFullName().length())
+                                + n.getFullName().substring(3)
                                 + "?context=3";
                         new OpenRedditLink(mContext, s);
                     }
@@ -180,7 +179,7 @@ public class CommentAdapterHelper {
                         Intent i = new Intent(mContext, Website.class);
                         i.putExtra(LinkUtil.EXTRA_URL, "https://reddit.com"
                                 + adapter.submission.getPermalink()
-                                + n.getFullName().substring(3, n.getFullName().length())
+                                + n.getFullName().substring(3)
                                 + "?context=3&inapp=false");
                         i.putExtra(LinkUtil.EXTRA_COLOR, Palette.getColor(n.getSubredditName()));
                         mContext.startActivity(i);
@@ -313,7 +312,7 @@ public class CommentAdapterHelper {
                                                                 Context.CLIPBOARD_SERVICE);
                                                 ClipData clip =
                                                         ClipData.newPlainText("Comment text",
-                                                                Html.fromHtml(n.getBody()));
+                                                                StringEscapeUtils.unescapeHtml4(n.getBody()));
                                                 clipboard.setPrimaryClip(clip);
 
                                                 Toast.makeText(mContext,
@@ -327,7 +326,7 @@ public class CommentAdapterHelper {
                         //Share comment
                         Reddit.defaultShareText(adapter.submission.getTitle(), "https://reddit.com"
                                 + adapter.submission.getPermalink()
-                                + n.getFullName().substring(3, n.getFullName().length())
+                                + n.getFullName().substring(3)
                                 + "?context=3", mContext);
                         break;
                 }
@@ -390,8 +389,8 @@ public class CommentAdapterHelper {
                 Comment parent = o.comment.getComment();
                 adapter.setViews(parent.getDataNode().get("body_html").asText(),
                         adapter.submission.getSubredditName(),
-                        (SpoilerRobotoTextView) dialoglayout.findViewById(R.id.firstTextView),
-                        (CommentOverflow) dialoglayout.findViewById(R.id.commentOverflow));
+                        dialoglayout.findViewById(R.id.firstTextView),
+                        dialoglayout.findViewById(R.id.commentOverflow));
                 builder.setView(dialoglayout);
                 builder.show();
                 break;
@@ -644,27 +643,27 @@ public class CommentAdapterHelper {
         final Drawable approve = mContext.getResources().getDrawable(R.drawable.support);
         final Drawable nsfw = mContext.getResources().getDrawable(R.drawable.hide);
         final Drawable pin = mContext.getResources().getDrawable(R.drawable.sub);
-        final Drawable distinguish = mContext.getResources().getDrawable(R.drawable.iconstarfilled);
+        final Drawable distinguish = mContext.getResources().getDrawable(R.drawable.star);
         final Drawable remove = mContext.getResources().getDrawable(R.drawable.close);
         final Drawable ban = mContext.getResources().getDrawable(R.drawable.ban);
         final Drawable spam = mContext.getResources().getDrawable(R.drawable.spam);
         final Drawable note = mContext.getResources().getDrawable(R.drawable.note);
-        final Drawable removeReason = mContext.getResources().getDrawable(R.drawable.reportreason);
+        final Drawable removeReason = mContext.getResources().getDrawable(R.drawable.report_reason);
         final Drawable lock = mContext.getResources().getDrawable(R.drawable.lock);
 
         //Tint drawables
-        profile.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        report.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        approve.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        nsfw.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        distinguish.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        remove.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        pin.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        ban.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        spam.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        note.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        removeReason.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        lock.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        profile.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        report.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        approve.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        nsfw.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        distinguish.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        remove.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        pin.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        ban.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        spam.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        note.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        removeReason.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
+        lock.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
 
         ta.recycle();
 
