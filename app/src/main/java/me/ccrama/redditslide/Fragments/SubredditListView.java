@@ -45,7 +45,7 @@ public class SubredditListView extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         final Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), new ColorPreferences(inflater.getContext()).getThemeSubreddit(where));
-        View v = ((LayoutInflater) contextThemeWrapper.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.fragment_verticalcontent, container, false);
+        View v = LayoutInflater.from(contextThemeWrapper).inflate(R.layout.fragment_verticalcontent, container, false);
 
         rv = v.findViewById(R.id.vertical_content);
         final RecyclerView.LayoutManager mLayoutManager = new PreCachingLayoutManager(getActivity());

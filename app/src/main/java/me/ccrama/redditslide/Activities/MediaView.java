@@ -2,11 +2,9 @@ package me.ccrama.redditslide.Activities;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -22,7 +20,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,10 +31,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.cocosw.bottomsheet.BottomSheet;
+import com.davemorrissey.labs.subscaleview.decoder.CompatDecoderFactory;
+import com.davemorrissey.labs.subscaleview.decoder.SkiaImageDecoder;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -83,6 +84,7 @@ import me.ccrama.redditslide.util.NetworkUtil;
 import me.ccrama.redditslide.util.ShareUtil;
 
 import static me.ccrama.redditslide.Activities.AlbumPager.readableFileSize;
+import static me.ccrama.redditslide.Notifications.ImageDownloadNotificationService.*;
 
 
 /**
@@ -100,6 +102,8 @@ public class MediaView extends FullScreenActivity
 
     public static String   fileLoc;
     public        String   subreddit;
+    private       String   submissionTitle;
+    private       int      index;
     public static Runnable doOnClick;
     public static boolean  didLoadGif;
 
@@ -325,6 +329,8 @@ public class MediaView extends FullScreenActivity
                 //always download the original file, or use the cached original if that is currently displayed
                 i.putExtra("actuallyLoaded", contentUrl);
                 if (subreddit != null && !subreddit.isEmpty()) i.putExtra("subreddit", subreddit);
+                if (submissionTitle != null) i.putExtra(EXTRA_SUBMISSION_TITLE, submissionTitle);
+                i.putExtra("index", index);
                 startService(i);
             }
         } else {
@@ -359,7 +365,7 @@ public class MediaView extends FullScreenActivity
                                     .randomUUID()
                                     .toString() + baseUrl.substring(baseUrl.lastIndexOf(".")));
                     mNotifyManager =
-                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                            ContextCompat.getSystemService(MediaView.this, NotificationManager.class);
                     mBuilder = new NotificationCompat.Builder(MediaView.this, Reddit.CHANNEL_IMG);
                     mBuilder.setContentTitle(getString(R.string.mediaview_saving, baseUrl))
                             .setSmallIcon(R.drawable.save);
@@ -415,9 +421,10 @@ public class MediaView extends FullScreenActivity
                                                 .build();
 
                                         NotificationManager mNotificationManager =
-                                                (NotificationManager) getSystemService(
-                                                        Activity.NOTIFICATION_SERVICE);
-                                        mNotificationManager.notify(1, notif);
+                                                ContextCompat.getSystemService(MediaView.this, NotificationManager.class);
+                                        if (mNotificationManager != null) {
+                                            mNotificationManager.notify(1, notif);
+                                        }
                                     }
                                 });
                     } catch (Exception e) {
@@ -444,7 +451,7 @@ public class MediaView extends FullScreenActivity
                                     .randomUUID()
                                     .toString() + baseUrl.substring(baseUrl.lastIndexOf(".")));
                     mNotifyManager =
-                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                            ContextCompat.getSystemService(MediaView.this, NotificationManager.class);
                     mBuilder = new NotificationCompat.Builder(MediaView.this, Reddit.CHANNEL_IMG);
                     mBuilder.setContentTitle(getString(R.string.mediaview_saving, baseUrl))
                             .setSmallIcon(R.drawable.save);
@@ -489,9 +496,11 @@ public class MediaView extends FullScreenActivity
                                         startActivity(
                                                 Intent.createChooser(shareIntent, "Share GIF"));
                                         NotificationManager mNotificationManager =
-                                                (NotificationManager) getSystemService(
-                                                        Activity.NOTIFICATION_SERVICE);
-                                        mNotificationManager.cancel(1);
+                                                ContextCompat.getSystemService(MediaView.this,
+                                                        NotificationManager.class);
+                                        if (mNotificationManager != null) {
+                                            mNotificationManager.cancel(1);
+                                        }
                                     }
                                 });
                     } catch (Exception e) {
@@ -640,7 +649,7 @@ public class MediaView extends FullScreenActivity
         setShareUrl(contentUrl);
 
         if (contentUrl.contains("reddituploads.com")) {
-            contentUrl = Html.fromHtml(contentUrl).toString();
+            contentUrl = HtmlCompat.fromHtml(contentUrl, HtmlCompat.FROM_HTML_MODE_LEGACY).toString();
         }
         if (contentUrl != null && shouldTruncate(contentUrl)) {
             contentUrl = contentUrl.substring(0, contentUrl.lastIndexOf("."));
@@ -662,6 +671,10 @@ public class MediaView extends FullScreenActivity
         if (getIntent().hasExtra(SUBREDDIT)) {
             subreddit = getIntent().getExtras().getString(SUBREDDIT);
         }
+        if (getIntent().hasExtra(EXTRA_SUBMISSION_TITLE)) {
+            submissionTitle = getIntent().getExtras().getString(EXTRA_SUBMISSION_TITLE);
+        }
+        index = getIntent().getIntExtra("index", -1);
         findViewById(R.id.mute).setVisibility(View.GONE);
 
         if (getIntent().hasExtra(EXTRA_LQ)) {
@@ -1364,6 +1377,8 @@ public class MediaView extends FullScreenActivity
                 i.putExtra("actuallyLoaded", contentUrl);
                 i.putExtra("saveToLocation", folder.getAbsolutePath());
                 if (subreddit != null && !subreddit.isEmpty()) i.putExtra("subreddit", subreddit);
+                if (submissionTitle != null) i.putExtra(EXTRA_SUBMISSION_TITLE, submissionTitle);
+                i.putExtra("index", index);
                 startService(i);
             } else {
                 Reddit.appRestart.edit().putString("imagelocation", folder.getAbsolutePath()).apply();

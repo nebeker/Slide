@@ -18,7 +18,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.InputType;
 import android.text.SpannableStringBuilder;
 import android.text.style.AbsoluteSizeSpan;
@@ -39,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
@@ -86,6 +86,7 @@ import me.ccrama.redditslide.Activities.PostReadLater;
 import me.ccrama.redditslide.Activities.Profile;
 import me.ccrama.redditslide.Activities.Reauthenticate;
 import me.ccrama.redditslide.Activities.RedditGallery;
+import me.ccrama.redditslide.Activities.RedditGalleryPager;
 import me.ccrama.redditslide.Activities.Search;
 import me.ccrama.redditslide.Activities.SubredditView;
 import me.ccrama.redditslide.Activities.Tumblr;
@@ -122,6 +123,8 @@ import me.ccrama.redditslide.util.LinkUtil;
 import me.ccrama.redditslide.util.NetworkUtil;
 import me.ccrama.redditslide.util.OnSingleClickListener;
 import me.ccrama.redditslide.util.SubmissionParser;
+
+import static me.ccrama.redditslide.Notifications.ImageDownloadNotificationService.EXTRA_SUBMISSION_TITLE;
 
 /**
  * Created by ccrama on 9/19/2015.
@@ -173,6 +176,7 @@ public class PopulateSubmissionViewHolder {
                                         myIntent.putExtra(MediaView.SUBREDDIT,
                                                 submission.getSubredditName());
                                         myIntent.putExtra(MediaView.EXTRA_URL, submission.getUrl());
+                                        myIntent.putExtra(EXTRA_SUBMISSION_TITLE, submission.getTitle());
                                         addAdaptorPosition(myIntent, submission,
                                                 holder.getAdapterPosition());
                                         contextActivity.startActivity(myIntent);
@@ -189,10 +193,10 @@ public class PopulateSubmissionViewHolder {
                                     break;
                                 case EMBEDDED:
                                     if (SettingValues.video) {
-                                        String data = Html.fromHtml(submission.getDataNode()
+                                        String data = HtmlCompat.fromHtml(submission.getDataNode()
                                                 .get("media_embed")
                                                 .get("content")
-                                                .asText()).toString();
+                                                .asText(), HtmlCompat.FROM_HTML_MODE_LEGACY).toString();
                                         {
                                             Intent i = new Intent(contextActivity,
                                                     FullscreenVideo.class);
@@ -208,7 +212,19 @@ public class PopulateSubmissionViewHolder {
                                     break;
                                 case REDDIT_GALLERY:
                                     if (SettingValues.album) {
-                                        Intent i = new Intent(contextActivity, RedditGallery.class);
+                                        Intent i;
+                                        if (SettingValues.albumSwipe) {
+                                            i = new Intent(contextActivity, RedditGalleryPager.class);
+                                            i.putExtra(AlbumPager.SUBREDDIT,
+                                                    submission.getSubredditName());
+                                            i.putExtra(EXTRA_SUBMISSION_TITLE, submission.getTitle());
+                                        } else {
+                                            i = new Intent(contextActivity, RedditGallery.class);
+                                            i.putExtra(Album.SUBREDDIT,
+                                                    submission.getSubredditName());
+                                            i.putExtra(EXTRA_SUBMISSION_TITLE, submission.getTitle());
+                                        }
+
                                         i.putExtra(RedditGallery.SUBREDDIT,
                                                 submission.getSubredditName());
 
@@ -221,6 +237,17 @@ public class PopulateSubmissionViewHolder {
                                                         "media_metadata")
                                                         .has(identifier.get("media_id").asText())) {
                                                     urls.add(new GalleryImage(dataNode.get("media_metadata")
+                                                            .get(identifier.get("media_id").asText())
+                                                            .get("s")));
+                                                }
+                                            }
+                                        } else if (dataNode.has("crosspost_parent_list")) { //Else, try getting crosspost gallery data
+                                            JsonNode crosspost_parent = dataNode.get("crosspost_parent_list").get(0);
+                                            for (JsonNode identifier : crosspost_parent.get("gallery_data").get("items")) {
+                                                if (crosspost_parent.has("media_metadata") && crosspost_parent.get(
+                                                        "media_metadata")
+                                                        .has(identifier.get("media_id").asText())) {
+                                                    urls.add(new GalleryImage(crosspost_parent.get("media_metadata")
                                                             .get(identifier.get("media_id").asText())
                                                             .get("s")));
                                                 }
@@ -259,10 +286,12 @@ public class PopulateSubmissionViewHolder {
                                             i = new Intent(contextActivity, AlbumPager.class);
                                             i.putExtra(AlbumPager.SUBREDDIT,
                                                     submission.getSubredditName());
+                                            i.putExtra(EXTRA_SUBMISSION_TITLE, submission.getTitle());
                                         } else {
                                             i = new Intent(contextActivity, Album.class);
                                             i.putExtra(Album.SUBREDDIT,
                                                     submission.getSubredditName());
+                                            i.putExtra(EXTRA_SUBMISSION_TITLE, submission.getTitle());
                                         }
                                         i.putExtra(Album.EXTRA_URL, submission.getUrl());
 
@@ -347,6 +376,7 @@ public class PopulateSubmissionViewHolder {
         if (SettingValues.image) {
             Intent myIntent = new Intent(contextActivity, MediaView.class);
             myIntent.putExtra(MediaView.SUBREDDIT, submission.getSubredditName());
+            myIntent.putExtra(EXTRA_SUBMISSION_TITLE, submission.getTitle());
             String previewUrl;
             String url = submission.getUrl();
 
@@ -408,6 +438,7 @@ public class PopulateSubmissionViewHolder {
 
             Intent myIntent = new Intent(contextActivity, MediaView.class);
             myIntent.putExtra(MediaView.SUBREDDIT, submission.getSubredditName());
+            myIntent.putExtra(EXTRA_SUBMISSION_TITLE, submission.getTitle());
 
             GifUtils.AsyncLoadGif.VideoType t =
                     GifUtils.AsyncLoadGif.getVideoType(submission.getUrl());
@@ -587,7 +618,7 @@ public class PopulateSubmissionViewHolder {
         ta.recycle();
 
         final BottomSheet.Builder b =
-                new BottomSheet.Builder(mContext).title(Html.fromHtml(submission.getTitle()));
+                new BottomSheet.Builder(mContext).title(HtmlCompat.fromHtml(submission.getTitle(), HtmlCompat.FROM_HTML_MODE_LEGACY));
 
 
         final boolean isReadLater = mContext instanceof PostReadLater;
@@ -914,7 +945,7 @@ public class PopulateSubmissionViewHolder {
                         }
                         break;
                     case 4:
-                        Reddit.defaultShareText(Html.fromHtml(submission.getTitle()).toString(),
+                        Reddit.defaultShareText(HtmlCompat.fromHtml(submission.getTitle(), HtmlCompat.FROM_HTML_MODE_LEGACY).toString(),
                                 StringEscapeUtils.escapeHtml4(submission.getUrl()), mContext);
                         break;
                     case 12:
@@ -1005,10 +1036,12 @@ public class PopulateSubmissionViewHolder {
                         }
                         break;
                     case 6: {
-                        ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(
-                                Context.CLIPBOARD_SERVICE);
+                        ClipboardManager clipboard = ContextCompat.getSystemService(mContext,
+                                ClipboardManager.class);
                         ClipData clip = ClipData.newPlainText("Link", submission.getUrl());
-                        clipboard.setPrimaryClip(clip);
+                        if (clipboard != null) {
+                            clipboard.setPrimaryClip(clip);
+                        }
                         Toast.makeText(mContext, R.string.submission_link_copied,
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -1034,8 +1067,8 @@ public class PopulateSubmissionViewHolder {
                                                         .substring(showText.getSelectionStart(),
                                                                 showText.getSelectionEnd());
                                                 ClipboardManager clipboard =
-                                                        (ClipboardManager) mContext.getSystemService(
-                                                                Context.CLIPBOARD_SERVICE);
+                                                        ContextCompat.getSystemService(mContext,
+                                                                ClipboardManager.class);
                                                 ClipData clip;
                                                 if (!selected.isEmpty()) {
                                                     clip = ClipData.newPlainText("Selftext",
@@ -1043,13 +1076,15 @@ public class PopulateSubmissionViewHolder {
 
                                                 } else {
                                                     clip = ClipData.newPlainText("Selftext",
-                                                            Html.fromHtml(
+                                                            HtmlCompat.fromHtml(
                                                                     submission.getTitle()
                                                                             + "\n\n"
-                                                                            + submission.getSelftext()));
+                                                                            + submission.getSelftext(), HtmlCompat.FROM_HTML_MODE_LEGACY));
 
                                                 }
-                                                clipboard.setPrimaryClip(clip);
+                                                if (clipboard != null) {
+                                                    clipboard.setPrimaryClip(clip);
+                                                }
                                                 Toast.makeText(mContext,
                                                         R.string.submission_comment_copied,
                                                         Toast.LENGTH_SHORT).show();
@@ -1062,14 +1097,16 @@ public class PopulateSubmissionViewHolder {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
                                                 ClipboardManager clipboard =
-                                                        (ClipboardManager) mContext.getSystemService(
-                                                                Context.CLIPBOARD_SERVICE);
+                                                        ContextCompat.getSystemService(mContext,
+                                                                ClipboardManager.class);
                                                 ClipData clip = ClipData.newPlainText("Selftext",
                                                         StringEscapeUtils.unescapeHtml4(
                                                                 submission.getTitle()
                                                                         + "\n\n"
                                                                         + submission.getSelftext()));
-                                                clipboard.setPrimaryClip(clip);
+                                                if (clipboard != null) {
+                                                    clipboard.setPrimaryClip(clip);
+                                                }
 
                                                 Toast.makeText(mContext,
                                                         R.string.submission_text_copied,
@@ -1446,7 +1483,7 @@ public class PopulateSubmissionViewHolder {
         ta.recycle();
 
         BottomSheet.Builder b =
-                new BottomSheet.Builder(mContext).title(Html.fromHtml(submission.getTitle()));
+                new BottomSheet.Builder(mContext).title(HtmlCompat.fromHtml(submission.getTitle(), HtmlCompat.FROM_HTML_MODE_LEGACY));
 
         int reportCount = reports.size() + reports2.size();
 
@@ -2869,8 +2906,8 @@ public class PopulateSubmissionViewHolder {
             }
             holder.body.setTypeface(typeface);
 
-            holder.body.setTextHtml(Html.fromHtml(
-                    text.substring(0, text.contains("\n") ? text.indexOf("\n") : text.length()))
+            holder.body.setTextHtml(HtmlCompat.fromHtml(
+                    text.substring(0, text.contains("\n") ? text.indexOf("\n") : text.length()), HtmlCompat.FROM_HTML_MODE_LEGACY)
                     .toString()
                     .replace("<sup>", "<sup><small>")
                     .replace("</sup>", "</small></sup>"), "none ");
@@ -3105,7 +3142,7 @@ public class PopulateSubmissionViewHolder {
                             ta.recycle();
 
                             BottomSheet.Builder b = new BottomSheet.Builder(mContext).title(
-                                            Html.fromHtml(submission.getTitle()));
+                                            HtmlCompat.fromHtml(submission.getTitle(), HtmlCompat.FROM_HTML_MODE_LEGACY));
 
                             if (submission.isSelfPost()) {
                                 b.sheet(1, edit_drawable,

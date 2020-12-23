@@ -86,8 +86,7 @@ public class ToolboxUI {
             return;
         }
 
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View dialogContent = inflater.inflate(R.layout.toolbox_removal_dialog, null);
+        final View dialogContent = LayoutInflater.from(context).inflate(R.layout.toolbox_removal_dialog, null);
 
         final CheckBox headerToggle = dialogContent.findViewById(R.id.toolbox_header_toggle);
         final TextView headerText = dialogContent.findViewById(R.id.toolbox_header_text);

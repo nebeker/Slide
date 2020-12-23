@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -24,6 +23,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.core.text.HtmlCompat;
 
 import com.devspark.robototextview.RobotoTypefaces;
 
@@ -420,7 +420,7 @@ public class RedditItemView extends RelativeLayout {
         }
         holder.content.setTypeface(typeface);
 
-        if (comment.getTimesSilvered() > 0 || comment.getTimesGilded() > 0  || comment.getTimesPlatinized() > 0) {
+        if (!SettingValues.hideCommentAwards && (comment.getTimesSilvered() > 0 || comment.getTimesGilded() > 0  || comment.getTimesPlatinized() > 0)) {
             TypedArray a = getContext().obtainStyledAttributes(
                     new FontPreferences(getContext()).getPostFontStyle().getResId(),
                     R.styleable.FontStyle);
@@ -479,9 +479,9 @@ public class RedditItemView extends RelativeLayout {
         }
 
         if (comment.getSubmissionTitle() != null) {
-            holder.title.setText(Html.fromHtml(comment.getSubmissionTitle()));
+            holder.title.setText(HtmlCompat.fromHtml(comment.getSubmissionTitle(), HtmlCompat.FROM_HTML_MODE_LEGACY));
         } else {
-            holder.title.setText(Html.fromHtml(comment.getAuthor()));
+            holder.title.setText(HtmlCompat.fromHtml(comment.getAuthor(), HtmlCompat.FROM_HTML_MODE_LEGACY));
         }
     }
 
